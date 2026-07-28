@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>ניהול פניות</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=Assistant:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090E; --s1:#0C1017; --s2:#121826;
+  --line:rgba(237,234,227,.09); --line-gold:rgba(239,191,74,.22);
+  --gold:#EFBF4A; --gold-2:#FFE9A8; --gold-3:#C08F1E;
+  --fg:#EDEAE3; --mu:#8D94A3; --mu2:#5E6575;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Assistant',system-ui,sans-serif;background:var(--bg);color:var(--fg);font-size:16px;-webkit-font-smoothing:antialiased}
+.dsp{font-family:'Rubik',sans-serif;letter-spacing:-.03em}
+a{color:inherit;text-decoration:none}
+button,input,select{font-family:inherit}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- gate ---------- */
+.gate{min-height:100dvh;display:grid;place-items:center;padding:24px}
+.gate form{width:100%;max-width:380px;border:1px solid var(--line);background:var(--s1);border-radius:26px;padding:38px}
+.lock{width:56px;height:56px;margin:0 auto 24px;border-radius:16px;display:grid;place-items:center;border:1px solid var(--line-gold);background:rgba(239,191,74,.07)}
+.lock svg{width:24px;height:24px;stroke:var(--gold);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.gate h1{text-align:center;font-family:'Rubik',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.03em}
+.gate .sub{text-align:center;font-size:14px;font-weight:300;color:var(--mu);margin-block-start:8px}
+.gate label{display:block;font-size:13px;font-weight:500;color:var(--mu);margin:32px 0 10px}
+.gate input{
+  width:100%;padding:15px 17px;border-radius:16px;font-size:19px;text-align:center;letter-spacing:.3em;
+  background:rgba(7,9,14,.7);border:1px solid var(--line);color:var(--fg);transition:.3s var(--ease);
+}
+.gate input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(239,191,74,.12)}
+.err{margin-block-start:14px;font-size:13.5px;color:#F87171;text-align:center;min-height:20px}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:14px 26px;border-radius:999px;
+  font-family:'Rubik',sans-serif;font-weight:600;font-size:15px;border:1px solid transparent;cursor:pointer;transition:.35s var(--ease);
+}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn-gold{background:linear-gradient(120deg,var(--gold-2),var(--gold) 55%,var(--gold-3));color:#100C02;width:100%;margin-block-start:20px}
+.btn-gold:hover:not(:disabled){opacity:.94}
+.btn-gold:disabled{opacity:.5;cursor:not-allowed}
+.btn-line{border-color:var(--line);color:var(--fg);background:transparent;padding:10px 20px;font-size:14px}
+.btn-line:hover{border-color:var(--gold);color:var(--gold-2)}
+
+/* ---------- board ---------- */
+.board{display:none;padding:32px clamp(16px,4vw,48px)}
+.board.on{display:block}
+.wrap{max-width:1240px;margin-inline:auto}
+.top{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.top h1{font-family:'Rubik',sans-serif;font-size:clamp(26px,3vw,35px);font-weight:800;letter-spacing:-.03em}
+.top .meta{margin-block-start:6px;font-size:14px;font-weight:300;color:var(--mu)}
+.acts{display:flex;gap:10px}
+
+.tools{display:flex;flex-wrap:wrap;gap:12px;margin-block-start:28px}
+.search{position:relative;flex:1;min-width:240px}
+.search svg{position:absolute;inset-inline-end:16px;inset-block-start:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--mu2);fill:none;stroke-width:2}
+.search input{
+  width:100%;padding:13px 44px 13px 16px;border-radius:16px;font-size:15px;
+  background:var(--s1);border:1px solid var(--line);color:var(--fg);transition:.3s var(--ease);
+}
+.search input::placeholder{color:var(--mu2)}
+.search input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(239,191,74,.12)}
+#filter{padding:13px 16px;border-radius:16px;font-size:15px;background:var(--s1);border:1px solid var(--line);color:var(--fg);min-width:150px;cursor:pointer}
+#filter:focus{outline:none;border-color:var(--gold)}
+#filter option{background:var(--s2)}
+
+.tbl-wrap{margin-block-start:24px;border:1px solid var(--line);border-radius:26px;overflow:auto}
+table{width:100%;min-width:900px;border-collapse:collapse}
+th{background:var(--s2);font-size:13px;font-weight:500;color:var(--mu2);text-align:start;padding:16px}
+td{background:var(--s1);border-block-start:1px solid var(--line);padding:16px;vertical-align:top;transition:background .3s}
+tr:hover td{background:var(--s2)}
+.c-date{white-space:nowrap;font-size:13px;color:var(--mu2);font-variant-numeric:tabular-nums}
+.c-name{font-size:15px;font-weight:500}
+.c-txt{font-size:14px;font-weight:300;color:var(--mu);line-height:1.65;max-width:320px}
+.c-amt{white-space:nowrap;font-size:14px;color:var(--mu)}
+.contact a{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mu);transition:.25s}
+.contact a+a{margin-block-start:6px}
+.contact a:hover{color:var(--gold-2)}
+.contact svg{width:14px;height:14px;flex:none;stroke:var(--gold);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.st{border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:600;cursor:pointer;outline:none;border:1px solid}
+.st option{background:var(--s2);color:var(--fg)}
+.st-new{border-color:rgba(239,191,74,.3);background:rgba(239,191,74,.1);color:var(--gold-2)}
+.st-contacted{border-color:rgba(56,189,248,.3);background:rgba(56,189,248,.1);color:#7DD3FC}
+.st-done{border-color:rgba(52,211,153,.3);background:rgba(52,211,153,.1);color:#6EE7B7}
+.st-archived{border-color:var(--line);background:rgba(237,234,227,.05);color:var(--mu2)}
+
+.empty{margin-block-start:28px;border:1px solid var(--line);background:var(--s1);border-radius:26px;padding:80px 24px;text-align:center}
+.empty svg{width:32px;height:32px;stroke:var(--mu2);fill:none;stroke-width:1.5;margin:0 auto 16px;display:block}
+.empty p{color:var(--mu);font-weight:300}
+.spin{animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- מסך סיסמה -->
+<div class="gate" id="gate">
+  <form id="gateForm">
+    <div class="lock"><svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg></div>
+    <h1 class="dsp">ניהול פניות</h1>
+    <p class="sub">אזור מוגן. נדרשת סיסמה.</p>
+    <label for="pw">סיסמה</label>
+    <input id="pw" type="password" placeholder="••••" autofocus autocomplete="current-password">
+    <p class="err" id="err"></p>
+    <button type="submit" class="btn btn-gold" id="goBtn">כניסה</button>
+  </form>
+</div>
+
+<!-- לוח הפניות -->
+<div class="board" id="board">
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>פניות מהאתר</h1>
+        <p class="meta"><span class="num" id="cTotal">0</span> פניות · <span class="num" id="cNew">0</span> חדשות</p>
+      </div>
+      <div class="acts">
+        <button class="btn btn-line" id="refresh"><svg id="rIcon" viewBox="0 0 24 24"><path d="M21 12a9 9 0 11-3-6.7"/><path d="M21 3v6h-6"/></svg>רענון</button>
+        <button class="btn btn-line" id="logout"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>יציאה</button>
+      </div>
+    </div>
+
+    <div class="tools">
+      <div class="search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="חיפוש בשם, טלפון, אימייל או הודעה">
+      </div>
+      <select id="filter">
+        <option value="all">הכול</option>
+        <option value="new">חדש</option>
+        <option value="contacted">בטיפול</option>
+        <option value="done">נסגר</option>
+        <option value="archived">בארכיון</option>
+      </select>
+    </div>
+
+    <div id="out"></div>
+  </div>
+</div>
+
+<script>
+const SB_URL = 'https://eequmwmeynpbasirhxqh.supabase.co';
+const ENDPOINT = SB_URL + '/functions/v1/admin-leads';
+
+const STATUS = {
+  new:       {label:'חדש',    cls:'st-new'},
+  contacted: {label:'בטיפול', cls:'st-contacted'},
+  done:      {label:'נסגר',   cls:'st-done'},
+  archived:  {label:'בארכיון', cls:'st-archived'}
+};
+
+let pw = '', leads = [];
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate = iso => new Date(iso).toLocaleString('he-IL',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+
+async function call(payload){
+  const res = await fetch(ENDPOINT, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(Object.assign({password: pw}, payload))
+  });
+  if (res.status === 401) throw new Error('סיסמה שגויה');
+  if (!res.ok) throw new Error('שגיאת שרת');
+  return res.json();
+}
+
+async function load(){
+  const icon = $('rIcon'); if (icon) icon.classList.add('spin');
+  try {
+    const data = await call({});
+    leads = data.leads || [];
+    render();
+  } catch (e) {
+    alert(e.message);
+  } finally {
+    if (icon) icon.classList.remove('spin');
+  }
+}
+
+function render(){
+  const needle = $('q').value.trim().toLowerCase();
+  const f = $('filter').value;
+
+  $('cTotal').textContent = leads.length;
+  $('cNew').textContent = leads.filter(l => l.status === 'new').length;
+
+  const shown = leads
+    .filter(l => f === 'all' || l.status === f)
+    .filter(l => !needle || [l.name,l.phone,l.email,l.amount,l.message]
+      .some(v => (v||'').toLowerCase().includes(needle)));
+
+  if (!shown.length) {
+    $('out').innerHTML = '<div class="empty"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg><p>' +
+      (leads.length ? 'אין תוצאות לחיפוש הזה.' : 'עוד לא הגיעו פניות.') + '</p></div>';
+    return;
+  }
+
+  $('out').innerHTML =
+    '<div class="tbl-wrap"><table><thead><tr>' +
+      '<th>תאריך</th><th>שם</th><th>יצירת קשר</th><th>סכום</th><th>הודעה</th><th>סטטוס</th>' +
+    '</tr></thead><tbody>' +
+    shown.map(l =>
+      '<tr>' +
+        '<td class="c-date">' + fmtDate(l.created_at) + '</td>' +
+        '<td class="c-name">' + esc(l.name) + '</td>' +
+        '<td class="contact">' +
+          '<a href="tel:' + esc(l.phone) + '"><svg viewBox="0 0 24 24"><path d="M5 3h4l2 5-2.5 1.5a12 12 0 006 6L16 13l5 2v4a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></svg><span dir="ltr">' + esc(l.phone) + '</span></a>' +
+          '<a href="mailto:' + esc(l.email) + '"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg><span dir="ltr">' + esc(l.email) + '</span></a>' +
+        '</td>' +
+        '<td class="c-amt">' + (esc(l.amount) || '—') + '</td>' +
+        '<td class="c-txt">' + (esc(l.message) || '—') + '</td>' +
+        '<td><select class="st ' + STATUS[l.status].cls + '" data-id="' + l.id + '">' +
+          Object.keys(STATUS).map(s =>
+            '<option value="' + s + '"' + (s === l.status ? ' selected' : '') + '>' + STATUS[s].label + '</option>'
+          ).join('') +
+        '</select></td>' +
+      '</tr>'
+    ).join('') +
+    '</tbody></table></div>';
+
+  document.querySelectorAll('.st').forEach(sel => {
+    sel.addEventListener('change', async e => {
+      const id = e.target.dataset.id, status = e.target.value;
+      const row = leads.find(l => l.id === id), prev = row.status;
+      row.status = status;
+      render();
+      try { await call({action:'set_status', id, status}); }
+      catch { row.status = prev; render(); alert('העדכון לא נשמר'); }
+    });
+  });
+}
+
+$('gateForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = $('goBtn');
+  pw = $('pw').value;
+  if (!pw) return;
+  $('err').textContent = '';
+  btn.disabled = true; btn.textContent = 'בודק…';
+  try {
+    const data = await call({});
+    leads = data.leads || [];
+    $('gate').style.display = 'none';
+    $('board').classList.add('on');
+    render();
+  } catch (err) {
+    $('err').textContent = err.message;
+    pw = '';
+  } finally {
+    btn.disabled = false; btn.textContent = 'כניסה';
+  }
+});
+
+$('refresh').addEventListener('click', load);
+$('logout').addEventListener('click', () => {
+  pw = ''; leads = [];
+  $('board').classList.remove('on');
+  $('gate').style.display = 'grid';
+  $('pw').value = ''; $('pw').focus();
+});
+$('q').addEventListener('input', render);
+$('filter').addEventListener('change', render);
+</script>
+</body>
+</html>

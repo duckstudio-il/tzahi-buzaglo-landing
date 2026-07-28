@@ -802,14 +802,47 @@ const cio = new IntersectionObserver((es) => {
 }, {threshold:.6});
 document.querySelectorAll('[data-count]').forEach(el => cio.observe(el));
 
-/* form */
-document.getElementById('leadForm').addEventListener('submit', (e) => {
+/* form → Supabase */
+const SB_URL = 'https://eequmwmeynpbasirhxqh.supabase.co';
+const SB_KEY = 'sb_publishable_lkGYJkvLb4Hn2Tm1VfBj8g_Y8-u0RfB';
+
+document.getElementById('leadForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const f = e.target;
   if (!f.checkValidity()) { f.reportValidity(); return; }
+
   const btn = f.querySelector('button');
-  btn.firstChild.textContent = 'שולח… ';
-  setTimeout(() => document.getElementById('formWrap').classList.add('sent'), 700);
+  const label = btn.firstChild;
+  const original = label.textContent;
+  label.textContent = 'שולח… ';
+  btn.disabled = true;
+
+  const d = new FormData(f);
+  try {
+    const res = await fetch(SB_URL + '/rest/v1/leads', {
+      method: 'POST',
+      headers: {
+        'apikey': SB_KEY,
+        'Authorization': 'Bearer ' + SB_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        name: d.get('name').trim(),
+        phone: d.get('phone').trim(),
+        email: d.get('email').trim(),
+        amount: d.get('amount'),
+        message: (d.get('message') || '').trim() || null,
+        source: 'landing-page'
+      })
+    });
+    if (!res.ok) throw new Error(await res.text());
+    document.getElementById('formWrap').classList.add('sent');
+  } catch (err) {
+    label.textContent = original;
+    btn.disabled = false;
+    alert('השליחה לא הושלמה. אפשר לנסות שוב או לכתוב ישירות למייל שבתחתית העמוד.');
+  }
 });
 </script>
 </body>

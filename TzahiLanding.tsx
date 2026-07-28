@@ -41,9 +41,7 @@ import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-
-/** נקודת הקצה לשליחת הליד — Supabase Edge Function עם Resend. */
-const LEAD_ENDPOINT = "/functions/v1/send-lead";
+import { supabase } from "@/integrations/supabase/client";
 
 /* ═══════════════════════════ עזרים ═══════════════════════════ */
 
@@ -209,12 +207,15 @@ function LeadForm() {
     }
     setBusy(true);
     try {
-      const res = await fetch(LEAD_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, source: "landing-page", sentAt: new Date().toISOString() }),
+      const { error } = await supabase.from("leads").insert({
+        name: form.name.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim(),
+        amount: form.amount,
+        message: form.message.trim() || null,
+        source: "landing-page",
       });
-      if (!res.ok) throw new Error("send failed");
+      if (error) throw error;
       setSent(true);
     } catch {
       toast({
