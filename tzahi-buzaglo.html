@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>צחי בוזגלו · ייעוץ השקעות</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800;900&family=Assistant:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090E;
+  --s1:#0C1017;
+  --s2:#121826;
+  --s3:#18202F;
+  --line:rgba(237,234,227,.09);
+  --line-gold:rgba(239,191,74,.22);
+  --gold:#EFBF4A;
+  --gold-2:#FFE9A8;
+  --gold-3:#C08F1E;
+  --fg:#EDEAE3;
+  --mu:#8D94A3;
+  --mu2:#5E6575;
+  --r:22px;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:'Assistant',system-ui,sans-serif;
+  background:var(--bg);color:var(--fg);
+  font-size:17px;line-height:1.7;font-weight:400;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+.dsp{font-family:'Rubik',system-ui,sans-serif}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+img,svg{display:block;max-width:100%}
+::selection{background:var(--gold);color:#0B0906}
+
+/* grain + grid texture */
+.grain{
+  position:fixed;inset:0;z-index:100;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.gridlines{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(to left,var(--line) 1px,transparent 1px);
+  background-size:calc(100% / 6) 100%;
+  max-width:1280px;margin-inline:auto;opacity:.5;
+}
+@media(max-width:900px){.gridlines{display:none}}
+
+/* scroll progress */
+.progress{position:fixed;inset-block-start:0;inset-inline:0;height:2px;z-index:120;background:transparent}
+.progress b{display:block;height:100%;width:0;background:linear-gradient(to left,var(--gold-3),var(--gold),var(--gold-2))}
+
+.wrap{position:relative;z-index:1;width:100%;max-width:1280px;margin-inline:auto;padding-inline:clamp(20px,4vw,56px)}
+
+/* ---------- type ---------- */
+h1,h2,h3{font-family:'Rubik',sans-serif;font-weight:800;letter-spacing:-.035em;line-height:1}
+.h-xl{font-size:clamp(2.9rem,8.2vw,7rem);line-height:.94}
+.h-lg{font-size:clamp(2.1rem,5vw,4.1rem);line-height:1.02}
+.h-md{font-size:clamp(1.35rem,2.2vw,1.75rem);line-height:1.15;font-weight:700;letter-spacing:-.02em}
+.num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.grad{background:linear-gradient(100deg,var(--gold-2) 10%,var(--gold) 50%,var(--gold-3) 95%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:clamp(1.06rem,1.5vw,1.32rem);line-height:1.72;color:var(--mu);font-weight:300}
+.body{color:var(--mu);font-weight:300;line-height:1.8}
+
+/* ---------- buttons ---------- */
+.btn{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  padding:16px 32px;border-radius:999px;font-family:'Rubik',sans-serif;font-weight:600;font-size:16px;
+  letter-spacing:-.01em;border:1px solid transparent;cursor:pointer;overflow:hidden;
+  transition:transform .4s var(--ease),box-shadow .4s var(--ease),border-color .3s,color .3s;
+}
+.btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .4s var(--ease)}
+.btn:hover svg{transform:translateX(-5px)}
+.btn-gold{background:linear-gradient(120deg,var(--gold-2),var(--gold) 55%,var(--gold-3));color:#100C02;box-shadow:0 14px 40px -14px rgba(239,191,74,.6)}
+.btn-gold:hover{transform:translateY(-3px);box-shadow:0 22px 54px -14px rgba(239,191,74,.75)}
+.btn-line{border-color:var(--line);color:var(--fg);background:transparent}
+.btn-line:hover{border-color:var(--gold);color:var(--gold-2);transform:translateY(-3px)}
+.btn-sm{padding:11px 22px;font-size:14.5px}
+.btn-full{width:100%}
+
+/* ---------- header ---------- */
+header{position:fixed;inset-block-start:0;inset-inline:0;z-index:90;transition:.45s var(--ease)}
+header.solid{background:rgba(7,9,14,.78);backdrop-filter:blur(18px) saturate(160%);border-block-end:1px solid var(--line)}
+.nav{display:flex;align-items:center;justify-content:space-between;height:78px}
+.logo{display:flex;align-items:center;gap:11px}
+.logo-mark{
+  width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;
+  background:linear-gradient(135deg,var(--gold-2),var(--gold-3));
+}
+.logo-mark svg{width:17px;height:17px;stroke:#100C02;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.logo-txt b{display:block;font-family:'Rubik',sans-serif;font-weight:700;font-size:16.5px;letter-spacing:-.03em;line-height:1.15}
+.logo-txt span{display:block;font-size:10.5px;letter-spacing:.22em;color:var(--gold);font-weight:500}
+.nav-links{display:flex;gap:6px}
+.nav-links a{position:relative;padding:9px 15px;font-size:15px;color:var(--mu);border-radius:999px;transition:.3s}
+.nav-links a:hover{color:var(--fg);background:rgba(237,234,227,.05)}
+@media(max-width:980px){.nav-links{display:none}}
+@media(max-width:520px){.nav .btn{display:none}}
+
+/* ---------- hero ---------- */
+.hero{position:relative;padding-block:clamp(130px,17vh,180px) clamp(70px,10vh,110px);overflow:hidden}
+.orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(10px)}
+.orb-1{inset-block-start:-30%;inset-inline-start:-15%;width:min(1000px,110vw);aspect-ratio:1;background:radial-gradient(circle,rgba(239,191,74,.17),transparent 60%)}
+.orb-2{inset-block-end:-40%;inset-inline-end:-20%;width:min(760px,90vw);aspect-ratio:1;background:radial-gradient(circle,rgba(74,124,239,.14),transparent 62%)}
+
+.pill{
+  display:inline-flex;align-items:center;gap:10px;padding:8px 8px 8px 18px;border-radius:999px;
+  border:1px solid var(--line-gold);background:rgba(239,191,74,.05);
+  font-size:13.5px;color:var(--gold-2);font-weight:500;
+}
+.pill .badge{background:var(--gold);color:#100C02;font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:999px;letter-spacing:.02em}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(239,191,74,.6)}70%{box-shadow:0 0 0 10px rgba(239,191,74,0)}100%{box-shadow:0 0 0 0 rgba(239,191,74,0)}}
+
+h1.h-xl{margin-block-start:clamp(26px,4vh,42px)}
+.word{display:inline-block;overflow:hidden;vertical-align:top}
+.word i{display:inline-block;font-style:normal;transform:translateY(105%);transition:transform 1s var(--ease)}
+.loaded .word i{transform:translateY(0)}
+
+.hero-cta{display:flex;flex-wrap:wrap;gap:14px;margin-block-start:clamp(30px,4vh,44px)}
+.hero-foot{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+  margin-block-start:clamp(48px,7vh,80px);background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+}
+.metric{background:var(--s1);padding:26px 24px}
+.metric b{display:block;font-family:'Rubik',sans-serif;font-size:clamp(1.9rem,3.4vw,2.7rem);font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--gold-2)}
+.metric span{display:block;margin-block-start:9px;font-size:13.5px;color:var(--mu2);letter-spacing:.01em}
+
+/* hero chart */
+.chart{position:absolute;inset-block-end:0;inset-inline:0;height:min(46vh,420px);opacity:.55;pointer-events:none}
+.chart svg{width:100%;height:100%}
+.chart path.ln{fill:none;stroke:url(#lg);stroke-width:2;stroke-linecap:round;stroke-dasharray:2400;stroke-dashoffset:2400;transition:stroke-dashoffset 2.6s var(--ease) .35s}
+.loaded .chart path.ln{stroke-dashoffset:0}
+.chart path.ar{fill:url(#ag);opacity:0;transition:opacity 1.4s ease 1.5s}
+.loaded .chart path.ar{opacity:1}
+
+/* ---------- marquee ---------- */
+.mq{border-block:1px solid var(--line);background:var(--s1);overflow:hidden;padding-block:26px;position:relative;z-index:1}
+.mq-track{display:flex;gap:44px;width:max-content;animation:slide 40s linear infinite}
+@keyframes slide{to{transform:translateX(50%)}}
+.mq-item{
+  display:flex;align-items:center;gap:16px;white-space:nowrap;
+  font-family:'Rubik',sans-serif;font-weight:600;font-size:clamp(18px,2.4vw,30px);
+  letter-spacing:-.03em;color:transparent;-webkit-text-stroke:1px rgba(237,234,227,.28);
+}
+.mq-item.on{color:var(--gold);-webkit-text-stroke:0}
+.mq-item::after{content:"";width:7px;height:7px;flex:none;border-radius:2px;background:var(--gold);transform:rotate(45deg)}
+
+/* ---------- sections ---------- */
+.sec{padding-block:clamp(80px,12vh,140px);position:relative}
+.sec-head{max-width:800px}
+.tag{
+  display:inline-flex;align-items:center;gap:12px;margin-block-end:22px;
+  font-family:'Rubik',sans-serif;font-size:12.5px;font-weight:500;letter-spacing:.2em;color:var(--gold);
+}
+.tag::before{content:"";width:34px;height:1px;background:linear-gradient(to left,var(--gold),transparent)}
+.sec-head p{margin-block-start:20px}
+
+/* pain */
+.pain{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-block-start:clamp(44px,6vh,72px);background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+@media(max-width:900px){.pain{grid-template-columns:1fr}}
+.pain-card{background:var(--s1);padding:clamp(28px,3.2vw,42px);transition:background .45s var(--ease);position:relative}
+.pain-card:hover{background:var(--s2)}
+.pain-card .idx{font-family:'Rubik',sans-serif;font-size:13px;font-weight:600;letter-spacing:.14em;color:var(--gold-3);margin-block-end:26px}
+.pain-card h3{margin-block-end:14px}
+.pain-card::after{content:"";position:absolute;inset-block-end:0;inset-inline-start:0;width:0;height:2px;background:var(--gold);transition:width .55s var(--ease)}
+.pain-card:hover::after{width:100%}
+
+/* tracks */
+.tracks{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-block-start:clamp(44px,6vh,72px);background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+@media(max-width:980px){.tracks{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.tracks{grid-template-columns:1fr}}
+.track{
+  position:relative;background:var(--s1);padding:clamp(28px,3vw,40px);
+  transition:background .45s var(--ease);overflow:hidden;
+}
+.track:hover{background:var(--s2)}
+.track .glow{position:absolute;inset-block-start:-60%;inset-inline-end:-30%;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(239,191,74,.2),transparent 65%);opacity:0;transition:opacity .5s}
+.track:hover .glow{opacity:1}
+.tr-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-block-end:26px}
+.tr-icon{
+  width:50px;height:50px;border-radius:14px;flex:none;display:grid;place-items:center;
+  border:1px solid var(--line-gold);background:rgba(239,191,74,.06);transition:.45s var(--ease);
+}
+.track:hover .tr-icon{background:var(--gold);border-color:var(--gold);transform:rotate(-6deg)}
+.tr-icon svg{width:23px;height:23px;stroke:var(--gold);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:stroke .45s}
+.track:hover .tr-icon svg{stroke:#100C02}
+.tr-num{font-family:'Rubik',sans-serif;font-size:12.5px;font-weight:500;letter-spacing:.14em;color:var(--mu2)}
+.track h3{margin-block-end:12px;position:relative}
+.track p{position:relative;font-size:15.8px}
+.chip{
+  display:inline-flex;align-items:center;gap:7px;margin-block-start:22px;position:relative;
+  font-size:12.5px;font-weight:600;color:var(--gold-2);background:rgba(239,191,74,.09);
+  border:1px solid var(--line-gold);padding:6px 14px;border-radius:999px;
+}
+
+/* steps */
+.steps{margin-block-start:clamp(44px,6vh,72px);display:grid;gap:1px;background:var(--line);border-block:1px solid var(--line)}
+.step{
+  background:var(--bg);display:grid;grid-template-columns:auto 1fr auto;gap:clamp(20px,4vw,56px);
+  align-items:start;padding-block:clamp(30px,4vh,48px);transition:background .4s var(--ease);
+}
+.step:hover{background:var(--s1)}
+.step-n{
+  font-family:'Rubik',sans-serif;font-size:clamp(2.6rem,6vw,4.6rem);font-weight:800;letter-spacing:-.06em;line-height:.85;
+  color:transparent;-webkit-text-stroke:1.5px var(--line-gold);transition:.5s var(--ease);min-width:1.4ch;
+}
+.step:hover .step-n{-webkit-text-stroke:1.5px var(--gold);color:rgba(239,191,74,.1)}
+.step-b h3{margin-block-end:12px}
+.step-b p{max-width:62ch}
+.step-note{
+  flex:none;font-size:13px;font-weight:600;color:var(--gold);white-space:nowrap;
+  border:1px solid var(--line-gold);border-radius:999px;padding:7px 15px;align-self:center;
+}
+@media(max-width:860px){
+  .step{grid-template-columns:auto 1fr;gap:22px}
+  .step-note{grid-column:2;align-self:start;margin-block-start:16px}
+}
+
+/* about */
+.about{display:grid;grid-template-columns:.82fr 1.18fr;gap:clamp(36px,5vw,80px);align-items:center}
+@media(max-width:900px){.about{grid-template-columns:1fr}}
+.portrait{position:relative;aspect-ratio:4/5;border-radius:var(--r);overflow:hidden;background:linear-gradient(160deg,var(--s3),var(--bg));border:1px solid var(--line);display:grid;place-items:center}
+.portrait::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(239,191,74,.14),transparent 60%)}
+.portrait .mono{font-family:'Rubik',sans-serif;font-size:clamp(64px,11vw,128px);font-weight:800;letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1.5px rgba(239,191,74,.3)}
+.portrait .cap{position:absolute;inset-block-end:20px;inset-inline-start:20px;font-size:12px;letter-spacing:.14em;color:var(--mu2)}
+.about-list{margin-block-start:30px;display:grid;gap:1px;background:var(--line);border-block:1px solid var(--line)}
+.about-list li{background:var(--bg);display:flex;gap:16px;align-items:flex-start;padding-block:16px;font-size:16px;color:var(--mu);font-weight:300}
+.about-list svg{width:19px;height:19px;flex:none;margin-block-start:3px;stroke:var(--gold);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* testimonials */
+.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-block-start:clamp(44px,6vh,72px);background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+@media(max-width:900px){.quotes{grid-template-columns:1fr}}
+.quote{background:var(--s1);padding:clamp(28px,3vw,40px);display:flex;flex-direction:column;transition:background .45s var(--ease)}
+.quote:hover{background:var(--s2)}
+.quote .mark{font-family:'Rubik',sans-serif;font-size:60px;font-weight:800;line-height:.6;color:var(--gold);opacity:.28;margin-block-end:18px}
+.quote blockquote{font-size:16.6px;line-height:1.85;font-weight:300;flex:1}
+.quote .who{display:flex;align-items:center;gap:13px;margin-block-start:26px;padding-block-start:22px;border-block-start:1px solid var(--line)}
+.who-av{width:42px;height:42px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:'Rubik',sans-serif;font-weight:700;font-size:15px;background:rgba(239,191,74,.12);color:var(--gold-2);border:1px solid var(--line-gold)}
+.who b{display:block;font-size:15px;font-weight:600}
+.who span{font-size:13px;color:var(--mu2)}
+.stars{display:flex;gap:3px;margin-block-end:16px}
+.stars svg{width:15px;height:15px;fill:var(--gold);stroke:none}
+
+/* faq */
+.faq{margin-block-start:clamp(40px,5vh,64px);border-block-start:1px solid var(--line)}
+details{border-block-end:1px solid var(--line);transition:background .4s}
+details[open]{background:linear-gradient(to left,rgba(239,191,74,.035),transparent)}
+summary{
+  list-style:none;cursor:pointer;display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:center;
+  padding-block:26px;font-family:'Rubik',sans-serif;font-size:clamp(17px,1.6vw,20px);font-weight:500;letter-spacing:-.02em;
+}
+summary::-webkit-details-marker{display:none}
+summary .q-n{font-size:12.5px;font-weight:500;letter-spacing:.14em;color:var(--gold-3)}
+.plus{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;flex:none;transition:.45s var(--ease)}
+.plus::before,.plus::after{content:"";position:absolute;background:var(--gold);border-radius:2px}
+.plus::before{width:13px;height:1.5px}
+.plus::after{width:1.5px;height:13px;transition:transform .45s var(--ease)}
+details[open] .plus{background:var(--gold);border-color:var(--gold);transform:rotate(90deg)}
+details[open] .plus::before,details[open] .plus::after{background:#100C02}
+details[open] .plus::after{transform:scaleY(0)}
+details .ans{padding-block-end:28px;padding-inline-start:52px;max-width:78ch;font-size:16.4px}
+@media(max-width:640px){details .ans{padding-inline-start:0}summary{grid-template-columns:1fr auto}summary .q-n{display:none}}
+
+/* ---------- form ---------- */
+.cta{position:relative;overflow:hidden;padding-block:clamp(80px,12vh,140px)}
+.cta .orb-1{inset-block-start:20%;inset-inline-start:50%;transform:translateX(50%);width:min(1200px,120vw)}
+.shell{
+  position:relative;display:grid;grid-template-columns:.88fr 1.12fr;
+  border:1px solid var(--line);border-radius:clamp(22px,3vw,32px);overflow:hidden;
+  background:var(--s1);box-shadow:0 60px 130px -60px #000;
+}
+@media(max-width:920px){.shell{grid-template-columns:1fr}}
+.shell-side{padding:clamp(32px,4vw,56px);background:linear-gradient(200deg,rgba(239,191,74,.11),rgba(239,191,74,.01) 60%);border-inline-end:1px solid var(--line)}
+@media(max-width:920px){.shell-side{border-inline-end:0;border-block-end:1px solid var(--line)}}
+.shell-side ul{margin-block-start:32px;display:grid;gap:16px}
+.shell-side li{display:flex;gap:13px;align-items:flex-start;font-size:15.6px;color:var(--fg);font-weight:300}
+.shell-side li svg{width:18px;height:18px;flex:none;margin-block-start:3px;stroke:var(--gold);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.shell-body{padding:clamp(32px,4vw,56px);background:var(--s2)}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+.fld{position:relative;margin-block-end:16px}
+.fld label{display:block;font-size:13px;font-weight:500;color:var(--mu);margin-block-end:9px;letter-spacing:.01em}
+.fld input,.fld select,.fld textarea{
+  width:100%;padding:15px 17px;border-radius:14px;font-family:'Assistant',sans-serif;font-size:16px;font-weight:400;
+  background:rgba(7,9,14,.65);border:1px solid var(--line);color:var(--fg);transition:.3s var(--ease);
+}
+.fld input::placeholder,.fld textarea::placeholder{color:var(--mu2)}
+.fld textarea{resize:vertical;min-height:104px;line-height:1.7}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:var(--gold);background:rgba(7,9,14,.9);box-shadow:0 0 0 4px rgba(239,191,74,.12)}
+.fld input[dir=ltr]{text-align:end}
+.sel-wrap{position:relative}
+.sel-wrap svg{position:absolute;inset-inline-start:16px;inset-block-start:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.fld select{appearance:none;padding-inline-start:44px;cursor:pointer}
+.fld select option{background:var(--s2);color:var(--fg)}
+.legal{margin-block-start:18px;font-size:12.5px;color:var(--mu2);line-height:1.7;text-align:center}
+.ok{display:none;text-align:center;padding-block:clamp(30px,5vh,60px)}
+.ok .ring{width:78px;height:78px;margin-inline:auto;margin-block-end:26px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line-gold);background:rgba(239,191,74,.08)}
+.ok .ring svg{width:34px;height:34px;stroke:var(--gold);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ok h3{margin-block-end:14px;font-size:26px}
+.sent .form-fields{display:none}
+.sent .ok{display:block}
+
+/* footer */
+footer.site{border-block-start:1px solid var(--line);background:var(--s1);padding-block:clamp(44px,6vh,70px) 32px;position:relative;z-index:1}
+.foot-top{display:flex;justify-content:space-between;gap:32px;flex-wrap:wrap;align-items:flex-start;padding-block-end:34px;border-block-end:1px solid var(--line)}
+.foot-links{display:flex;gap:26px;flex-wrap:wrap;font-size:15px;color:var(--mu)}
+.foot-links a{transition:.25s}
+.foot-links a:hover{color:var(--gold-2)}
+.foot-contact{display:flex;gap:22px;flex-wrap:wrap;font-size:15px;color:var(--mu)}
+.foot-contact a{display:flex;align-items:center;gap:9px;transition:.25s}
+.foot-contact a:hover{color:var(--gold-2)}
+.foot-contact svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.disc{margin-block-start:30px;font-size:12.5px;color:var(--mu2);line-height:1.85;max-width:96ch;font-weight:300}
+
+/* reveal */
+.rv{opacity:0;transform:translateY(30px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.rv.in{opacity:1;transform:none}
+
+/* mobile cta */
+.mob{position:fixed;inset-block-end:0;inset-inline:0;z-index:80;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:rgba(7,9,14,.94);backdrop-filter:blur(16px);border-block-start:1px solid var(--line);display:none}
+@media(max-width:760px){.mob{display:block}body{padding-block-end:82px}}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}.rv{opacity:1;transform:none}.word i{transform:none}}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="gridlines"></div>
+<div class="progress"><b id="bar"></b></div>
+
+<header id="hdr">
+  <div class="wrap nav">
+    <a href="#top" class="logo">
+      <span class="logo-mark"><svg viewBox="0 0 24 24"><path d="M4 17l5-6 4 4 7-9"/></svg></span>
+      <span class="logo-txt"><b>צחי בוזגלו</b><span>ייעוץ השקעות</span></span>
+    </a>
+    <nav class="nav-links">
+      <a href="#why">למה עכשיו</a>
+      <a href="#tracks">מסלולים</a>
+      <a href="#how">איך זה עובד</a>
+      <a href="#about">על צחי</a>
+      <a href="#faq">שאלות</a>
+    </nav>
+    <a href="#contact" class="btn btn-gold btn-sm">שיחת אבחון חינם<svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></svg></a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="chart">
+    <svg viewBox="0 0 1200 380" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="lg" x1="1" y1="0" x2="0" y2="0">
+          <stop offset="0%" stop-color="#EFBF4A" stop-opacity="0"/>
+          <stop offset="35%" stop-color="#EFBF4A" stop-opacity=".7"/>
+          <stop offset="100%" stop-color="#FFE9A8"/>
+        </linearGradient>
+        <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#EFBF4A" stop-opacity=".16"/>
+          <stop offset="100%" stop-color="#EFBF4A" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path class="ar" d="M1200,330 C1060,320 1010,300 900,306 C800,312 760,258 660,268 C560,278 520,214 420,206 C320,198 270,140 160,120 C90,107 40,74 0,58 L0,380 L1200,380 Z"/>
+      <path class="ln" d="M1200,330 C1060,320 1010,300 900,306 C800,312 760,258 660,268 C560,278 520,214 420,206 C320,198 270,140 160,120 C90,107 40,74 0,58"/>
+    </svg>
+  </div>
+
+  <div class="wrap">
+    <div class="rv">
+      <div class="pill"><span class="badge">4 מקומות</span><span class="dot"></span> נותרו החודש לשיחות אבחון</div>
+    </div>
+
+    <h1 class="h-xl">
+      <span class="word"><i>הכסף</i></span>
+      <span class="word"><i>שלך</i></span>
+      <span class="word"><i>כבר</i></span>
+      <span class="word"><i>עובד.</i></span>
+      <br>
+      <span class="word"><i>השאלה</i></span>
+      <span class="word"><i>היא</i></span>
+      <span class="word"><i class="grad">בשביל&nbsp;מי</i></span>
+    </h1>
+
+    <div class="rv" style="max-width:60ch;margin-block-start:clamp(22px,3vh,34px)">
+      <p class="lead">כל חודש שהכסף שוכב בעו״ש הוא חודש שבו מישהו אחר מרוויח ממנו. צחי בוזגלו בונה תוכנית השקעה אישית — לפי הסכום, הטווח ורמת הסיכון שמתאימה לך — ומלווה אותה עד שהמספרים בחשבון משתנים.</p>
+      <div class="hero-cta">
+        <a href="#contact" class="btn btn-gold">לשיחת אבחון חינם<svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></svg></a>
+        <a href="#tracks" class="btn btn-line">לראות את המסלולים</a>
+      </div>
+    </div>
+
+    <div class="hero-foot rv">
+      <div class="metric"><b class="num" data-count="12">0</b><span>שנות ניסיון בשוק</span></div>
+      <div class="metric"><b class="num" data-count="1400" data-suffix="+">0</b><span>תיקים אישיים שנבנו</span></div>
+      <div class="metric"><b class="num" data-count="94" data-suffix="%">0</b><span>ממשיכים לשנה שנייה</span></div>
+      <div class="metric"><b class="num" data-count="30" data-suffix=" דק׳">0</b><span>לשיחת האבחון הראשונה</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="mq">
+  <div class="mq-track">
+    <span class="mq-item">שוק ההון</span>
+    <span class="mq-item on">קרנות מחקות</span>
+    <span class="mq-item">נדל״ן מניב</span>
+    <span class="mq-item">קרן השתלמות</span>
+    <span class="mq-item on">תכנון מס</span>
+    <span class="mq-item">השקעות אלטרנטיביות</span>
+    <span class="mq-item">פנסיה חכמה</span>
+    <span class="mq-item">שוק ההון</span>
+    <span class="mq-item on">קרנות מחקות</span>
+    <span class="mq-item">נדל״ן מניב</span>
+    <span class="mq-item">קרן השתלמות</span>
+    <span class="mq-item on">תכנון מס</span>
+    <span class="mq-item">השקעות אלטרנטיביות</span>
+    <span class="mq-item">פנסיה חכמה</span>
+  </div>
+</div>
+
+<!-- WHY -->
+<section class="sec" id="why">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="tag">01 — למה עכשיו</p>
+      <h2 class="h-lg">כסף שעומד במקום<br>לא נשאר במקום.</h2>
+      <p class="lead">אין דבר כזה ״לא להחליט״. גם חוסר החלטה היא החלטה — פשוט אחת שגובה מחיר בכל חודש שעובר.</p>
+    </div>
+
+    <div class="pain">
+      <div class="pain-card rv">
+        <p class="idx">01 / שחיקה</p>
+        <h3 class="h-md">האינפלציה גובה שכר דירה</h3>
+        <p class="body">100,000 ש״ח שיושבים בעו״ש חמש שנים שווים היום פחות ממה שהיו שווים ביום שהופקדו. השחיקה שקטה, אבל היא מדויקת.</p>
+      </div>
+      <div class="pain-card rv">
+        <p class="idx">02 / שיתוק</p>
+        <h3 class="h-md">יותר מדי אפשרויות, אפס בחירה</h3>
+        <p class="body">מדדים, קרנות, נדל״ן, קריפטו, פיקדונות. כל כיוון נשמע הגיוני, וזה בדיוק מה שמשתק. בסוף הכסף נשאר איפה שהיה.</p>
+      </div>
+      <div class="pain-card rv">
+        <p class="idx">03 / רעש</p>
+        <h3 class="h-md">עצות מכולם, תוכנית מאף אחד</h3>
+        <p class="body">בבנק מוכרים מוצר. חבר מספר סיפור הצלחה. אף אחד מהם לא ראה את המספרים שלך, את המשפחה שלך ואת מה שבאמת מדיר שינה.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRACKS -->
+<section class="sec" id="tracks">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="tag">02 — מסלולי השקעה</p>
+      <h2 class="h-lg">אין מסלול אחד נכון.<br>יש <span class="grad">אחד שנכון לך</span>.</h2>
+      <p class="lead">צחי לא מוכר מוצר. הוא בוחר מתוך כל המגרש — ומרכיב שילוב שמתאים לסכום, לטווח ולשקט הנפשי שלך.</p>
+    </div>
+
+    <div class="tracks">
+      <div class="track rv">
+        <span class="glow"></span>
+        <div class="tr-head">
+          <span class="tr-icon"><svg viewBox="0 0 24 24"><path d="M3 17l5.5-6.5 4 4L20 5"/><path d="M14.5 5H20v5.5"/></svg></span>
+          <span class="tr-num">01</span>
+        </div>
+        <h3 class="h-md">שוק ההון ומדדים</h3>
+        <p class="body">תיק מבוזר על מדדים גלובליים, עם דמי ניהול נמוכים ואסטרטגיה שלא מתרגשת מכותרות. הבסיס של רוב התיקים.</p>
+        <span class="chip">טווח בינוני־ארוך</span>
+      </div>
+
+      <div class="track rv">
+        <span class="glow"></span>
+        <div class="tr-head">
+          <span class="tr-icon"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V9l7-5 7 5v12"/><path d="M10 21v-6h4v6"/></svg></span>
+          <span class="tr-num">02</span>
+        </div>
+        <h3 class="h-md">נדל״ן מניב</h3>
+        <p class="body">בארץ ובחו״ל, לבד או בשותפות. בודקים תשואה נטו אחרי מס, ניהול ותחזוקה — לא את המספר שמופיע במודעה.</p>
+        <span class="chip">תזרים חודשי</span>
+      </div>
+
+      <div class="track rv">
+        <span class="glow"></span>
+        <div class="tr-head">
+          <span class="tr-icon"><svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M17 6.5H9.75a3.25 3.25 0 000 6.5h4.5a3.25 3.25 0 010 6.5H6"/></svg></span>
+          <span class="tr-num">03</span>
+        </div>
+        <h3 class="h-md">קרן השתלמות ופנסיה</h3>
+        <p class="body">הכסף הכי גדול שלך יושב שם, ורוב האנשים לא נגעו בו מעולם. מסלול נכון ודמי ניהול נמוכים שווים מאות אלפי שקלים.</p>
+        <span class="chip">הרווח הכי מהיר</span>
+      </div>
+
+      <div class="track rv">
+        <span class="glow"></span>
+        <div class="tr-head">
+          <span class="tr-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 2"/></svg></span>
+          <span class="tr-num">04</span>
+        </div>
+        <h3 class="h-md">תיק סולידי לטווח קצר</h3>
+        <p class="body">כסף שמיועד לדירה, לחתונה או לרזרבה צריך להיות נזיל ובטוח — ועדיין לעבוד. יש דרכים טובות בהרבה מעו״ש.</p>
+        <span class="chip">נזילות גבוהה</span>
+      </div>
+
+      <div class="track rv">
+        <span class="glow"></span>
+        <div class="tr-head">
+          <span class="tr-icon"><svg viewBox="0 0 24 24"><path d="M12 3l8 3.5v6c0 4.6-3.4 7.6-8 8.5-4.6-.9-8-3.9-8-8.5v-6z"/><path d="M9 12l2.2 2.2L15.5 10"/></svg></span>
+          <span class="tr-num">05</span>
+        </div>
+        <h3 class="h-md">השקעות אלטרנטיביות</h3>
+        <p class="body">קרנות חוב, אשראי חוץ־בנקאי, תשתיות. רכיב שמוסיף יציבות ותשואה — כשהוא נבחר בזהירות ובמינון הנכון.</p>
+        <span class="chip">פיזור מתקדם</span>
+      </div>
+
+      <div class="track rv">
+        <span class="glow"></span>
+        <div class="tr-head">
+          <span class="tr-icon"><svg viewBox="0 0 24 24"><path d="M5 3h14v18H5z"/><path d="M9 8h6M9 12h6M9 16h3.5"/></svg></span>
+          <span class="tr-num">06</span>
+        </div>
+        <h3 class="h-md">תכנון מס ומשיכה חכמה</h3>
+        <p class="body">לא רק כמה מרוויחים — כמה נשאר אחרי מס. מתי מושכים, ממה, ובאיזה סדר. כאן נמצאים הרווחים ששוכחים לספור.</p>
+        <span class="chip">שומרים על הרווח</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="sec" id="how">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="tag">03 — התהליך</p>
+      <h2 class="h-lg">שלושה צעדים.<br>הראשון עולה לך חצי שעה.</h2>
+    </div>
+
+    <div class="steps">
+      <div class="step rv">
+        <span class="step-n">01</span>
+        <div class="step-b">
+          <h3 class="h-md">שיחת אבחון</h3>
+          <p class="body">30 דקות בזום או בטלפון. מיפוי מלא: מה יש, מה נכנס, מה מתוכנן ומה מלחיץ. בסוף השיחה כבר יש כיוון ברור — גם אם לא ממשיכים יחד.</p>
+        </div>
+        <span class="step-note">חינם · בלי התחייבות</span>
+      </div>
+
+      <div class="step rv">
+        <span class="step-n">02</span>
+        <div class="step-b">
+          <h3 class="h-md">תוכנית אישית</h3>
+          <p class="body">מסמך אחד שאפשר להבין בלי תואר בכלכלה: פיזור מדויק, טווחים, תרחישים, עלויות והשלכות מס. כולל מה עושים כבר בשבוע הראשון.</p>
+        </div>
+        <span class="step-note">תוך 7 ימי עסקים</span>
+      </div>
+
+      <div class="step rv">
+        <span class="step-n">03</span>
+        <div class="step-b">
+          <h3 class="h-md">ליווי שוטף</h3>
+          <p class="body">ביצוע בפועל, איזון התיק כשצריך ופגישות מעקב קבועות. וכשהשוק מתנדנד — יש למי להתקשר לפני שעושים טעות יקרה.</p>
+        </div>
+        <span class="step-note">פגישות רבעוניות</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="sec" id="about">
+  <div class="wrap about">
+    <div class="portrait rv">
+      <span class="mono">צב</span>
+      <span class="cap">תמונה של צחי</span>
+    </div>
+    <div class="rv">
+      <p class="tag">04 — על צחי</p>
+      <h2 class="h-lg">מספרים זה החלק הקל.<br>אנשים זה העבודה.</h2>
+      <p class="lead" style="margin-block-start:22px">צחי בוזגלו מלווה משפחות, עצמאים ובעלי עסקים בהחלטות הכספיות הגדולות של החיים — מהשקעה ראשונה של 50,000 ש״ח ועד תיקים מורכבים עם נדל״ן, קרנות ותכנון מס. הגישה שלו פשוטה: בלי ז׳רגון, בלי הבטחות, ובלי מוצר שצריך למכור.</p>
+      <ul class="about-list">
+        <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>יועץ השקעות בעל רישיון מטעם רשות ניירות ערך</li>
+        <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>ליווי אישי — אותו אדם בשיחת האבחון ובפגישה הרבעונית</li>
+        <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>שקיפות מלאה: כל עמלה ועלות על השולחן מראש</li>
+        <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>עבודה מול כל הגופים — בלי מחויבות לבית השקעות אחד</li>
+      </ul>
+      <div class="hero-cta"><a href="#contact" class="btn btn-gold">לקבוע שיחת אבחון<svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></svg></a></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="sec">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="tag">05 — לקוחות מספרים</p>
+      <h2 class="h-lg">מה שקורה כשהכסף<br>מפסיק לחכות.</h2>
+    </div>
+
+    <div class="quotes">
+      <div class="quote rv">
+        <div class="stars"><svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 17.9 5.8 21.2 7 14.2 2 9.4l7-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 17.9 5.8 21.2 7 14.2 2 9.4l7-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 17.9 5.8 21.2 7 14.2 2 9.4l7-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 17.9 5.8 21.2 7 14.2 2 9.4l7-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 17.9 5.8 21.2 7 14.2 2 9.4l7-.9z"/></svg></div>
+        <p class="mark">״</p>
+        <blockquote>שנתיים אמרתי לעצמי ׳בחודש הבא אני מטפל בזה׳. אחרי שיחה אחת עם צחי היה לי מסמך אחד ברור, וביום שאחרי כבר ביצענו. בפעם הראשונה הרגשתי שאני מבין מה קורה עם הכסף שלי.</blockquote>
+        <div class="who"><span class="who-av">ד</span><span><b>ד׳, בת 41 · ראשון לציון</b><span>עצמאית · תיק מעורב</span></span></div>
+      </div>
+
+      <div class="quote rv">
+        <div class="stars"><svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 17.9 5.8 21.2 7 14.2 2 9.4l7-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 17.9 5.8 21.2 7 14.2 2 9.4l7-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 17.9 5.8 21.2 7 14.2 2 9.4l7-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 17.9 5.8 21.2 7 14.2 2 9.4l7-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 17.9 5.8 21.2 7 14.2 2 9.4l7-.9z"/></svg></div>
+        <p class="mark">״</p>
+        <blockquote>הגעתי בשביל שוק ההון, ובדרך גילינו שקרן ההשתלמות שלי במסלול שגוי כבר שבע שנים. התיקון הזה לבדו החזיר את עלות הליווי פי כמה.</blockquote>
+        <div class="who"><span class="who-av">ר</span><span><b>ר׳, בן 53 · חיפה</b><span>שכיר · פנסיה והשתלמות</span></span></div>
+      </div>
+
+      <div class="quote rv">
+        <div class="stars"><svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 17.9 5.8 21.2 7 14.2 2 9.4l7-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 17.9 5.8 21.2 7 14.2 2 9.4l7-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 17.9 5.8 21.2 7 14.2 2 9.4l7-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 17.9 5.8 21.2 7 14.2 2 9.4l7-.9z"/></svg><svg viewBox="0 0 24 24"><path d="M12 2l3 6.5 7 .9-5 4.8 1.2 7L12 17.9 5.8 21.2 7 14.2 2 9.4l7-.9z"/></svg></div>
+        <p class="mark">״</p>
+        <blockquote>מה שאהבתי זה שצחי לא ניסה למכור לי כלום. הוא אמר לי בפירוש על מסלול אחד שהוא לא מתאים לי, למרות שהיה קל לו לומר כן. מאז אני שולח אליו חברים.</blockquote>
+        <div class="who"><span class="who-av">א</span><span><b>א׳, בן 36 · תל אביב</b><span>הייטק · השקעה ראשונה</span></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" id="faq">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="tag">06 — שאלות שחוזרות</p>
+      <h2 class="h-lg">מה ששואלים<br>לפני שמתחילים.</h2>
+    </div>
+
+    <div class="faq rv">
+      <details open>
+        <summary><span class="q-n">01</span><span>מאיזה סכום זה מתחיל להיות רלוונטי?</span><span class="plus"></span></summary>
+        <p class="ans body">אין רף כניסה קשיח. לרוב, מ־50,000 ש״ח פנויים או מקרן השתלמות פעילה כבר יש מספיק חומר לתוכנית שמשנה תוצאה. ואם עוד לא הגעת לשם — נאמר את זה בשיחה, בלי לבזבז לך זמן.</p>
+      </details>
+      <details>
+        <summary><span class="q-n">02</span><span>אפשר להבטיח שהכסף יוכפל?</span><span class="plus"></span></summary>
+        <p class="ans body">לא, ומי שמבטיח — כדאי לברוח ממנו. מה שכן אפשר: לבנות פיזור נכון, לצמצם עלויות ומס, ולהיצמד לתוכנית לאורך זמן. זה בדיוק מה שמייצר את הפער הגדול בין תיק לתיק לאורך שנים.</p>
+      </details>
+      <details>
+        <summary><span class="q-n">03</span><span>כמה זה עולה?</span><span class="plus"></span></summary>
+        <p class="ans body">שיחת האבחון חינם. אחריה יש מודל תמחור אחד, ברור וקבוע מראש — שנאמר לך בסוף השיחה, לפני שמחליטים משהו. בלי עמלות נסתרות ובלי אחוזים שצצים בהמשך.</p>
+      </details>
+      <details>
+        <summary><span class="q-n">04</span><span>צריך להעביר את הכסף לצחי?</span><span class="plus"></span></summary>
+        <p class="ans body">לא. הכסף נשאר בחשבונות שלך, על שמך, בשליטה מלאה שלך. הליווי הוא ייעוץ, תכנון וביצוע מול הגופים — לא ניהול הכסף בידיים שלנו.</p>
+      </details>
+      <details>
+        <summary><span class="q-n">05</span><span>כבר יש לי יועץ בבנק. מה ההבדל?</span><span class="plus"></span></summary>
+        <p class="ans body">ליועץ בבנק יש מדף מוצרים שהוא עובד מולו. כאן הבחירה נעשית מכל השוק, כולל אפיקים שלבנק אין אינטרס להציע. ההבדל מתגלה בדרך כלל בעמלות ובמסלולים.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="cta" id="contact">
+  <div class="orb orb-1"></div>
+  <div class="wrap">
+    <div class="shell rv">
+      <div class="shell-side">
+        <p class="tag">07 — שיחת אבחון</p>
+        <h2 class="h-lg" style="font-size:clamp(1.8rem,3.4vw,2.7rem)">חצי שעה שיכולה לשנות את העשור הבא</h2>
+        <p class="lead" style="margin-block-start:18px">משאירים פרטים, וצחי חוזר תוך יום עסקים אחד לתיאום. בלי אוטומציות, בלי מוקד, בלי לחץ.</p>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>מיפוי מלא של המצב הקיים</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>כיוון פעולה ברור כבר בשיחה</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>בלי התחייבות ובלי עלות</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>הפרטים נשארים אצלנו בלבד</li>
+        </ul>
+      </div>
+
+      <div class="shell-body" id="formWrap">
+        <form class="form-fields" id="leadForm" novalidate>
+          <div class="grid2">
+            <div class="fld">
+              <label for="f-name">שם מלא</label>
+              <input id="f-name" name="name" type="text" placeholder="ישראל ישראלי" required>
+            </div>
+            <div class="fld">
+              <label for="f-phone">טלפון</label>
+              <input id="f-phone" name="phone" type="tel" dir="ltr" inputmode="tel" placeholder="050-0000000" required>
+            </div>
+          </div>
+
+          <div class="fld">
+            <label for="f-email">אימייל</label>
+            <input id="f-email" name="email" type="email" dir="ltr" placeholder="name@email.com" required>
+          </div>
+
+          <div class="fld">
+            <label for="f-amount">סכום להשקעה (משוער)</label>
+            <div class="sel-wrap">
+              <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+              <select id="f-amount" name="amount" required>
+                <option value="">בחירה מהרשימה</option>
+                <option>עד 100 אלף ש״ח</option>
+                <option>100–300 אלף ש״ח</option>
+                <option>300–700 אלף ש״ח</option>
+                <option>700 אלף – 2 מיליון ש״ח</option>
+                <option>מעל 2 מיליון ש״ח</option>
+                <option>עדיין בבירור</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="fld">
+            <label for="f-msg">מה הכי חשוב לך לפתור? (לא חובה)</label>
+            <textarea id="f-msg" name="message" placeholder="למשל: יש לי כסף בעו״ש כבר שנתיים ואני לא יודע מה לעשות איתו"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-gold btn-full">שליחה וקביעת שיחה<svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></svg></button>
+          <p class="legal">בשליחה מאשרים יצירת קשר בנוגע לפנייה. הפרטים אינם מועברים לצד שלישי.</p>
+        </form>
+
+        <div class="ok">
+          <div class="ring"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div>
+          <h3 class="h-md">הפרטים התקבלו</h3>
+          <p class="body" style="max-width:38ch;margin-inline:auto">צחי יחזור אליך תוך יום עסקים אחד לתיאום שיחת האבחון. בינתיים — הכסף כבר יודע שמשהו עומד להשתנות.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap">
+    <div class="foot-top">
+      <a href="#top" class="logo">
+        <span class="logo-mark"><svg viewBox="0 0 24 24"><path d="M4 17l5-6 4 4 7-9"/></svg></span>
+        <span class="logo-txt"><b>צחי בוזגלו</b><span>ייעוץ השקעות</span></span>
+      </a>
+      <nav class="foot-links">
+        <a href="#why">למה עכשיו</a>
+        <a href="#tracks">מסלולים</a>
+        <a href="#how">איך זה עובד</a>
+        <a href="#about">על צחי</a>
+        <a href="#faq">שאלות</a>
+      </nav>
+      <div class="foot-contact">
+        <a href="mailto:tzahi@example.co.il"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg><span dir="ltr">tzahi@example.co.il</span></a>
+        <a href="tel:+972500000000"><svg viewBox="0 0 24 24"><path d="M5 3h4l2 5-2.5 1.5a12 12 0 006 6L16 13l5 2v4a2 2 0 01-2 2A16 16 0 013 5a2 2 0 012-2z"/></svg><span dir="ltr">050-000-0000</span></a>
+      </div>
+    </div>
+    <p class="disc">
+      האמור באתר זה הוא מידע כללי ושיווקי בלבד, ואינו מהווה ייעוץ השקעות, ייעוץ פנסיוני, שיווק השקעות או תחליף לייעוץ המתחשב בנתונים ובצרכים המיוחדים של כל אדם. אין באמור התחייבות לתשואה כלשהי, ואין בתשואות עבר כדי להעיד על תשואות עתידיות. השקעה בניירות ערך ובנכסים פיננסיים כרוכה בסיכון, לרבות אובדן חלק מהקרן או כולה.
+      <br>© <span id="yr" class="num"></span> צחי בוזגלו · כל הזכויות שמורות
+    </p>
+  </div>
+</footer>
+
+<div class="mob"><a href="#contact" class="btn btn-gold btn-full">לשיחת אבחון חינם<svg viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></svg></a></div>
+
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+requestAnimationFrame(() => document.body.classList.add('loaded'));
+
+const hdr = document.getElementById('hdr'), bar = document.getElementById('bar');
+const onScroll = () => {
+  hdr.classList.toggle('solid', scrollY > 24);
+  const max = document.documentElement.scrollHeight - innerHeight;
+  bar.style.width = (max > 0 ? (scrollY / max) * 100 : 0) + '%';
+};
+addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+/* word reveal stagger */
+document.querySelectorAll('.word i').forEach((w,i) => w.style.transitionDelay = (120 + i*70) + 'ms');
+
+/* reveal on scroll */
+const io = new IntersectionObserver((es) => {
+  es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, {threshold:.12, rootMargin:'0px 0px -40px'});
+document.querySelectorAll('.rv').forEach(el => io.observe(el));
+document.querySelectorAll('.pain-card, .track, .quote, .step').forEach((el,i) => el.style.transitionDelay = (i%3)*80 + 'ms');
+
+/* counters */
+const fmt = n => n.toLocaleString('he-IL');
+const cio = new IntersectionObserver((es) => {
+  es.forEach(e => {
+    if (!e.isIntersecting) return;
+    cio.unobserve(e.target);
+    const el = e.target, to = +el.dataset.count, sfx = el.dataset.suffix || '';
+    const t0 = performance.now(), dur = 1500;
+    const tick = (t) => {
+      const p = Math.min((t - t0) / dur, 1);
+      const v = Math.round(to * (1 - Math.pow(1 - p, 3)));
+      el.textContent = fmt(v) + sfx;
+      if (p < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+}, {threshold:.6});
+document.querySelectorAll('[data-count]').forEach(el => cio.observe(el));
+
+/* form */
+document.getElementById('leadForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const f = e.target;
+  if (!f.checkValidity()) { f.reportValidity(); return; }
+  const btn = f.querySelector('button');
+  btn.firstChild.textContent = 'שולח… ';
+  setTimeout(() => document.getElementById('formWrap').classList.add('sent'), 700);
+});
+</script>
+</body>
+</html>
